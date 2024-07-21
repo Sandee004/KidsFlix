@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { motion } from "framer-motion";
 
 interface Props {
     movieList: Movie[];
@@ -14,23 +15,7 @@ interface Movie {
 }
 
 const MovieComponent = ({ movieList, addFavourite }: Props) => {
-    //{currentMovies.map((movie, index) => (
-
-    //const addFavourite = (movieIndex: number) => {
-    //        setMovieList((prevList) => {
-    //          const updatedList = prevList.map((movie, index) => {
-    //            if (index === movieIndex) {
-    //              return { ...movie, isLiked: !movie.isLiked };
-    //        } else {
-    //          return movie;
-    //    }
-    //     });
-    //       return updatedList;
-    //     });
-    //   };
-
     const handleFavouriteClick = (movieIndex: number) => {
-        // Update the movie list with the toggled "isLiked" state
         const updatedMovieList = movieList.map((movie, index) => {
             if (index === movieIndex) {
                 return { ...movie, isLiked: !movie.isLiked };
@@ -38,9 +23,14 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
             return movie;
         });
 
-        // Call the prop function (setMovieList) to update state in FetchComponent
         addFavourite(updatedMovieList);
     };
+
+    const heartPopAnimation = {
+        scale: [1],
+        transition: { duration: 0.2 },
+    };
+
     return (
         <>
             <div className="flex flex-wrap mb-8 rounded-md text-white text-center px-5 flex-row justify-center mt-12">
@@ -59,7 +49,13 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                             <h3 className="text-[17px] font-bold text-white px-3">
                                 {movie.title}
                             </h3>
-                            <button>
+                            <motion.button
+                                animate={
+                                    movie.isLiked
+                                        ? { scale: 1.3 }
+                                        : heartPopAnimation
+                                }
+                                onClick={() => handleFavouriteClick(index)}>
                                 <FontAwesomeIcon
                                     onClick={() => handleFavouriteClick(index)}
                                     icon={faHeart}
@@ -69,7 +65,7 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                                             : "text-white"
                                     }`}
                                 />
-                            </button>
+                            </motion.button>
                         </div>
                     </div>
                 ))}
