@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
     movieList: Movie[];
@@ -12,9 +13,12 @@ interface Movie {
     poster_path: string | null;
     overview: string;
     isLiked: boolean;
+    id: number | string;
 }
 
 const MovieComponent = ({ movieList, addFavourite }: Props) => {
+    const navigate = useNavigate();
+
     const handleFavouriteClick = (movieIndex: number) => {
         const updatedMovieList = movieList.map((movie, index) => {
             if (index === movieIndex) {
@@ -46,7 +50,9 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                             />
                         )}
                         <div className="flex justify-between items-center h-[80px]">
-                            <h3 className="text-[17px] font-bold text-white px-3">
+                            <h3
+                                onClick={() => navigate(`/movies/${movie.id}`)}
+                                className="text-[17px] font-bold text-white px-3">
                                 {movie.title}
                             </h3>
                             <motion.button

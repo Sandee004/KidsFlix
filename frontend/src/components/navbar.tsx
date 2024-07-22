@@ -25,7 +25,7 @@ const Navbar = () => {
                 </button>
             </div>
             <div
-                className={`bg-slate-300 flex flex-col pl-8 py-4 ${
+                className={`bg-gray-300 flex flex-col pl-8 py-4 ${
                     menuOpen ? "block" : "hidden"
                 }`}>
                 <a className="py-1 hover:font-bold w-[80%]">Home</a>
@@ -34,11 +34,6 @@ const Navbar = () => {
                 <button className="bg-red-400 px-4 py-1 mt-1 mb-5 w-fit rounded-sm hover:bg-red-600 hover:font-bold">
                     Logout
                 </button>
-
-                <input
-                    className="w-[50%] rounded-sm bg-transparent px-5 font-bold py-1 border-2 border-[#22254b] font-sm text-[#373b69] italic focus:outline-0 focus:bg-[#22254b] focus:text-white focus:border-slate-500 sm:w-[320px]"
-                    placeholder="Search"
-                />
             </div>
         </>
     );

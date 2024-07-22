@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import MovieComponent from "./singleMovie";
+import Navbar from "./navbar";
+import SearchComponent from "./search";
 
 interface Movie {
     title: string;
     poster_path: string | null;
     overview: string;
     isLiked: boolean;
+    id: number | string;
 }
 
 const FetchComponent = () => {
@@ -52,12 +55,23 @@ const FetchComponent = () => {
 
     return (
         <>
-            <MovieComponent
-                movieList={currentMovies}
-                addFavourite={(updatedMovieList) =>
-                    setMovieList(updatedMovieList)
-                }
-            />
+            <Navbar />
+            <div className="bg-white mx-auto py-10 mt-10 w-[85%] items-center">
+                <div className="w-[98%] flex px-2 mx-auto items-center">
+                    <p className="bg-[#22254b] px-2 py-1 w-1/3 text-white text-sm overflow-hidden">
+                        RECENT MOVIES
+                    </p>
+                    <div className="w-2/3">
+                        <SearchComponent />
+                    </div>
+                </div>
+                <MovieComponent
+                    movieList={currentMovies}
+                    addFavourite={(updatedMovieList) =>
+                        setMovieList(updatedMovieList)
+                    }
+                />
+            </div>
             {totalPages > 1 && (
                 <div>
                     <button
