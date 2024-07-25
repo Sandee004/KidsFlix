@@ -76,7 +76,7 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                 {movieList.map((movie) => (
                     <div
                         key={movie.title}
-                        className="mx-5 bg-[#373b69] mb-5 w-[300px] h-[350px]">
+                        className="mx-5 bg-[#373b69] mb-5 w-[300px] h-[350px] hover:cursor-pointer hover:underline italic">
                         {movie.poster_path && (
                             <img
                                 src={`https://image.tmdb.org/t/p/w200/${movie.poster_path}`}

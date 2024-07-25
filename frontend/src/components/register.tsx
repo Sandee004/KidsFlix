@@ -31,20 +31,25 @@ const RegisterPage = () => {
                 return;
             }
 
-            const loginResponse = await fetch("http://localhost:5000/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, email }),
-            });
+            const loginResponse = await fetch(
+                "http://localhost:5000/api/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ username, email }),
+                }
+            );
 
             if (loginResponse.ok) {
                 const loginData = await loginResponse.json();
-                localStorage.setItem('token', loginData.access_token);
+                localStorage.setItem("token", loginData.access_token);
                 navigate("/");
             } else {
-                alert("Signup successful, but auto-login failed. Please log in manually.");
+                alert(
+                    "Signup successful, but auto-login failed. Please log in manually."
+                );
                 navigate("/login");
             }
         } catch (error) {
@@ -54,7 +59,7 @@ const RegisterPage = () => {
     };
     return (
         <>
-            <p>Register</p>
+            <p className="font-bold text-2xl text-center my-10">Register</p>
 
             <form
                 className="flex flex-col justify-center items-center"
@@ -82,7 +87,7 @@ const RegisterPage = () => {
                 />
 
                 <button
-                    className="bg-green-400 w-[80%] py-2 rounded-sm hover:bg-green-600 font-bold mt-2"
+                    className="bg-[#373b69] text-white w-[80%] py-2 rounded-sm hover:bg-[#22254b] font-bold mt-2"
                     type="submit">
                     SignUp
                 </button>
@@ -92,5 +97,3 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
-
-
