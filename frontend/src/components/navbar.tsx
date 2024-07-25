@@ -2,6 +2,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
+import { Link } from "react-router-dom";
+
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -28,9 +30,15 @@ const Navbar = () => {
                 className={`bg-gray-300 flex flex-col pl-8 py-4 ${
                     menuOpen ? "block" : "hidden"
                 }`}>
-                <a className="py-1 hover:font-bold w-[80%]">Home</a>
-                <a className="py-1 hover:font-bold w-[80%]">Profile</a>
-                <a className="py-1 hover:font-bold w-[80%]">Favourite</a>
+                <Link className="py-1 hover:font-bold w-[80%]" to="/">
+                    Home
+                </Link>
+                <Link className="py-1 hover:font-bold w-[80%]" to="/profile">
+                    Profile
+                </Link>
+                <Link className="py-1 hover:font-bold w-[80%]" to="/favourites">
+                    Favourites
+                </Link>
                 <button className="bg-red-400 px-4 py-1 mt-1 mb-5 w-fit rounded-sm hover:bg-red-600 hover:font-bold">
                     Logout
                 </button>

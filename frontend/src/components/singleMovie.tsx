@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface Props {
     movieList: Movie[];
@@ -18,16 +19,50 @@ interface Movie {
 
 const MovieComponent = ({ movieList, addFavourite }: Props) => {
     const navigate = useNavigate();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
-    const handleFavouriteClick = (movieIndex: number) => {
-        const updatedMovieList = movieList.map((movie, index) => {
-            if (index === movieIndex) {
-                return { ...movie, isLiked: !movie.isLiked };
+    const handleFavouriteClick = async (movie: Movie) => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                "http://localhost:5000/api/toogle_favourites",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        movie_id: movie.id,
+                        title: movie.title,
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to add favorite");
             }
-            return movie;
-        });
 
-        addFavourite(updatedMovieList);
+            const result = await response.json();
+
+            const updatedMovieList = movieList.map((m) =>
+                m.id === movie.id
+                    ? { ...m, isLiked: result.action === "added" }
+                    : m
+            );
+            addFavourite(updatedMovieList);
+
+            alert(result.message);
+        } catch (error) {
+            console.error("Error adding favorite:", error);
+            alert("Failed to add favorite. Please try again.");
+        }
     };
 
     const heartPopAnimation = {
@@ -38,7 +73,7 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
     return (
         <>
             <div className="flex flex-wrap mb-8 rounded-md text-white text-center px-5 flex-row justify-center mt-12">
-                {movieList.map((movie, index) => (
+                {movieList.map((movie) => (
                     <div
                         key={movie.title}
                         className="mx-5 bg-[#373b69] mb-5 w-[300px] h-[350px]">
@@ -61,9 +96,8 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                                         ? { scale: 1.3 }
                                         : heartPopAnimation
                                 }
-                                onClick={() => handleFavouriteClick(index)}>
+                                onClick={() => handleFavouriteClick(movie)}>
                                 <FontAwesomeIcon
-                                    onClick={() => handleFavouriteClick(index)}
                                     icon={faHeart}
                                     className={`border-black text-xl mr-5 ${
                                         movie.isLiked
@@ -76,6 +110,24 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                     </div>
                 ))}
             </div>
+
+            {showLoginModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg">
+                        <p>Please log in to add favorites.</p>
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 mr-2">
+                            Log In
+                        </button>
+                        <button
+                            onClick={() => setShowLoginModal(false)}
+                            className="bg-gray-300 px-4 py-2 rounded mt-4">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
