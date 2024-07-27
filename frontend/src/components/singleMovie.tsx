@@ -30,6 +30,35 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
         }
 
         try {
+            await validateToken(token);
+            await toogleFavourite(movie);
+        } catch (error) {
+            console.error("Error handling favourite: ", error);
+            alert("Failed to add favourite. Please try again");
+        }
+    };
+
+    const validateToken = async (token: string) => {
+        const response = await fetch("http://localhost:5000/api/check-token", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            setShowLoginModal(true);
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Failed to check token");
+        }
+    };
+
+    const toogleFavourite = async (movie: Movie) => {
+        const token = localStorage.getItem("token");
+        try {
             const response = await fetch(
                 "http://localhost:5000/api/toogle_favourites",
                 {
@@ -50,14 +79,12 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
             }
 
             const result = await response.json();
-
             const updatedMovieList = movieList.map((m) =>
                 m.id === movie.id
                     ? { ...m, isLiked: result.action === "added" }
                     : m
             );
             addFavourite(updatedMovieList);
-
             alert(result.message);
         } catch (error) {
             console.error("Error adding favorite:", error);

@@ -89,7 +89,7 @@ def toogle_favourite():
         
     except Exception as e:
         print(f"Error in toggle_favourite: {str(e)}")
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 401
 
 
 @app.route("/api/favourites", methods=["GET"])
@@ -103,16 +103,27 @@ def get_favourites():
     ]), 200
 
 
-#@app.route('/api/favorites/<int:movie_id>', methods=['DELETE'])
-#@jwt_required()
-#    def remove_favourite(movie_id):
- #       current_user_id = get_jwt_identity()
-  #      favourite = Favourite.query.filter_by(user_id=current_user_id, movie_id=movie_id).first()
-   #     if favourite:
-    #        db.session.delete(favourite)
-     #       db.session.commit()
-      #      return jsonify({"message": "Favourite removed successfully"}), 200
-       # return jsonify({"message": "Favourite not found"}), 404
+@app.route('/api/check-token', methods=["GET"])
+@jwt_required()
+def check_token():
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+
+        if user:
+            return jsonify({"message": "Token is valid",
+                            "user": {
+                                "id": user.id,
+                                "username": "user.username",
+                                "email": user.email
+                            }
+                            }), 200
+        else:
+            return jsonify({"messgae": "User not found"}), 404
+        
+    except Exception as e:
+        print(f"Error in check_token: {str(e)}")
+        return jsonify({"message": "Invalid or expired token"}), 401
 
 
 if __name__ == "__main__":
