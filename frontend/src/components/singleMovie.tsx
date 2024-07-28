@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Props {
     movieList: Movie[];
@@ -20,6 +20,62 @@ interface Movie {
 const MovieComponent = ({ movieList, addFavourite }: Props) => {
     const navigate = useNavigate();
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [favorites, setFavorites] = useState<(number | string)[]>([]);
+    const [localMovieList, setLocalMovieList] = useState(movieList);
+
+    useEffect(() => {
+        const fetchFavoritesAndUpdateMovies = async () => {
+            const fetchedFavorites = await fetchFavorites();
+            if (fetchedFavorites) {
+                setFavorites(fetchedFavorites);
+                updateMovieListWithFavorites(fetchedFavorites);
+            }
+        };
+
+        fetchFavoritesAndUpdateMovies();
+    }, []); // Run only on mount
+
+    useEffect(() => {
+        setLocalMovieList(movieList);
+    }, [movieList]);
+
+    const updateMovieListWithFavorites = (favs: (number | string)[]) => {
+        setLocalMovieList((prevList) =>
+            prevList.map((movie) => ({
+                ...movie,
+                isLiked: favs.includes(movie.id),
+            }))
+        );
+    };
+
+    const fetchFavorites = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                "http://localhost:5000/api/favourites",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                setShowLoginModal(true);
+                return;
+            }
+
+            if (!response.ok) throw new Error("Failed to fetch favorites");
+
+            const favoritesData = await response.json();
+            return favoritesData.map((fav: any) => fav.movie_id);
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+        }
+    };
 
     const handleFavouriteClick = async (movie: Movie) => {
         const token = localStorage.getItem("token");
@@ -31,7 +87,24 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
 
         try {
             await validateToken(token);
-            await toogleFavourite(movie);
+            const result = await toogleFavourite(movie);
+
+            let newFavorites;
+            if (result.action === "added") {
+                newFavorites = [...favorites, movie.id];
+            } else {
+                newFavorites = favorites.filter((id) => id !== movie.id);
+            }
+            setFavorites(newFavorites);
+
+            const updatedMovieList = movieList.map((m) =>
+                m.id === movie.id
+                    ? { ...m, isLiked: newFavorites.includes(m.id) }
+                    : m
+            );
+            addFavourite(updatedMovieList);
+
+            alert(result.message);
         } catch (error) {
             console.error("Error handling favourite: ", error);
             alert("Failed to add favourite. Please try again");
@@ -58,40 +131,27 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
 
     const toogleFavourite = async (movie: Movie) => {
         const token = localStorage.getItem("token");
-        try {
-            const response = await fetch(
-                "http://localhost:5000/api/toogle_favourites",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        movie_id: movie.id,
-                        title: movie.title,
-                    }),
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to add favorite");
+        const response = await fetch(
+            "http://localhost:5000/api/toogle_favourites",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    movie_id: movie.id,
+                    title: movie.title,
+                }),
             }
+        );
 
-            const result = await response.json();
-            const updatedMovieList = movieList.map((m) =>
-                m.id === movie.id
-                    ? { ...m, isLiked: result.action === "added" }
-                    : m
-            );
-            addFavourite(updatedMovieList);
-            alert(result.message);
-        } catch (error) {
-            console.error("Error adding favorite:", error);
-            alert("Failed to add favorite. Please try again.");
+        if (!response.ok) {
+            throw new Error("Failed to add favorite");
         }
-    };
 
+        return await response.json();
+    };
     const heartPopAnimation = {
         scale: [1],
         transition: { duration: 0.2 },
@@ -119,7 +179,7 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                             </h3>
                             <motion.button
                                 animate={
-                                    movie.isLiked
+                                    favorites.includes(movie.id)
                                         ? { scale: 1.3 }
                                         : heartPopAnimation
                                 }
@@ -127,7 +187,7 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                                 <FontAwesomeIcon
                                     icon={faHeart}
                                     className={`border-black text-xl mr-5 ${
-                                        movie.isLiked
+                                        favorites.includes(movie.id)
                                             ? "text-red-500"
                                             : "text-white"
                                     }`}
