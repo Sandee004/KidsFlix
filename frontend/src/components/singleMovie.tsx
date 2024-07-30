@@ -23,6 +23,8 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
     const [favorites, setFavorites] = useState<(number | string)[]>([]);
     const [localMovieList, setLocalMovieList] = useState(movieList);
 
+    console.log(localMovieList);
+
     useEffect(() => {
         const fetchFavoritesAndUpdateMovies = async () => {
             const fetchedFavorites = await fetchFavorites();

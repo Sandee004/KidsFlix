@@ -91,25 +91,67 @@ const FavouritesPage = () => {
         );
     }
 
+    const removeFav = async (movie: Movie) => {
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(
+                "http://localhost:5000/api/toogle_favourites",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        movie_id: movie.id,
+                        title: movie.title,
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to remove from favourites.");
+            }
+            const data = await response.json();
+            if (data.action === "removed") {
+                setFavouriteMovies((prevMovies) =>
+                    prevMovies.filter(
+                        (existingMovie) => existingMovie.id !== movie.id
+                    )
+                );
+            } else {
+                console.log("Unexpected response from server");
+            }
+        } catch (error) {
+            console.error("Error removing movie: ", error);
+        }
+    };
+
     return (
-        <>
-            <div className="bg-[#373b69] text-white px-5 py-2 mb-5">
+        <div>
+            <div className="bg-[#373b69] text-white px-5 py-3 mb-5 flex-col items-center">
                 <p className="text-2xl text-center">Favourites</p>
             </div>
             {favouriteMovies.length > 0 ? (
                 <div>
                     {favouriteMovies.map((movie) => (
-                        <div
-                            key={movie.id}
-                            className="border-2 border-[#22254b] w-[85%] rounded-sm px-5 py-6 mx-auto">
-                            <h3>{movie.title}</h3>
+                        <div className="flex border-2 border-[#22254b] w-[90%] rounded-sm px-5 py-6 justify-between mx-auto">
+                            <div key={movie.id}>
+                                <h3 className="text-xl">{movie.title}</h3>
+                            </div>
+                            <button
+                                onClick={() => removeFav(movie)}
+                                className="hover:font-bold text-sm bg-red-500 text-white px-2 py-1">
+                                Remove
+                            </button>
                         </div>
                     ))}
                 </div>
             ) : (
                 <p>No favourites added.</p>
             )}
-        </>
+        </div>
     );
 };
 
