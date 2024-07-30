@@ -31,6 +31,7 @@ const LoginPage = () => {
             } else {
                 const data = await response.json();
                 localStorage.setItem("token", data.access_token);
+                console.log(localStorage.getItem("token"));
                 navigate("/");
             }
         } catch (error) {
