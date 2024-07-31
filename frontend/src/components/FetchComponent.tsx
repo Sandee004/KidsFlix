@@ -15,11 +15,14 @@ const FetchComponent = () => {
     const apiKey = "ceba03f56c18f997a242eb118d552605";
     const [movieList, setMovieList] = useState<Movie[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isSearching, setIsSearching] = useState(false);
     const moviesPerPage = 12;
 
     useEffect(() => {
-        getAnimationMovies();
-    }, []);
+        if (!isSearching) {
+            getAnimationMovies();
+        }
+    }, [isSearching]);
 
     const getAnimationMovies = async () => {
         try {
@@ -44,6 +47,18 @@ const FetchComponent = () => {
         }
     };
 
+    const handleSearchResults = (results: Movie[]) => {
+        setMovieList(results);
+        setIsSearching(true);
+        setCurrentPage(1);
+    };
+
+    const handleClearSearch = () => {
+        setIsSearching(false);
+        setCurrentPage(1);
+        getAnimationMovies();
+    };
+
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
@@ -59,10 +74,13 @@ const FetchComponent = () => {
             <div className="bg-white mx-auto py-10 mt-10 w-[85%] items-center">
                 <div className="w-[98%] flex px-2 mx-auto items-center">
                     <p className="bg-[#22254b] px-2 py-1 w-1/3 text-white text-sm overflow-hidden">
-                        RECENT MOVIES
+                        {isSearching ? "SEARCH RESULTS" : "RECENT MOVIES"}
                     </p>
                     <div className="w-2/3">
-                        <SearchComponent />
+                        <SearchComponent
+                            onSearchResults={handleSearchResults}
+                            onClearSearch={handleClearSearch}
+                        />
                     </div>
                 </div>
                 <MovieComponent
