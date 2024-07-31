@@ -35,7 +35,7 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
         };
 
         fetchFavoritesAndUpdateMovies();
-    }, []); // Run only on mount
+    }, []);
 
     useEffect(() => {
         setLocalMovieList(movieList);
@@ -105,8 +105,6 @@ const MovieComponent = ({ movieList, addFavourite }: Props) => {
                     : m
             );
             addFavourite(updatedMovieList);
-
-            alert(result.message);
         } catch (error) {
             console.error("Error handling favourite: ", error);
             alert("Failed to add favourite. Please try again");

@@ -83,12 +83,12 @@ def toogle_favourite():
         if existing_favourite:
             db.session.delete(existing_favourite)
             db.session.commit()
-            return jsonify({"message": "Removed from favourites", "action": "removed"}), 200
+            return jsonify({"action": "removed"}), 200
         else:
             new_favourite = Favourite(user_id=current_user_id, movie_id=movie_id, title=title)
             db.session.add(new_favourite)
             db.session.commit()
-            return jsonify({"message": "Added to favourites", "action": "added"}), 200
+            return jsonify({"action": "added"}), 200
         
     except Exception as e:
         print(f"Error in toggle_favourite: {str(e)}")

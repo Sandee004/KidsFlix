@@ -70,7 +70,12 @@ const FavouritesPage = () => {
             }
 
             const data = await favouritesResponse.json();
-            setFavouriteMovies(data);
+            setFavouriteMovies(
+                data.map((movie: { movie_id: any; title: any }) => ({
+                    id: movie.movie_id,
+                    title: movie.title,
+                }))
+            );
         } catch (error) {
             console.error("Error:", error);
         }
@@ -92,6 +97,7 @@ const FavouritesPage = () => {
     }
 
     const removeFav = async (movie: Movie) => {
+        console.log("Removing movie");
         const token = localStorage.getItem("token");
 
         try {
@@ -136,20 +142,23 @@ const FavouritesPage = () => {
             {favouriteMovies.length > 0 ? (
                 <div>
                     {favouriteMovies.map((movie) => (
-                        <div className="flex border-2 border-[#22254b] w-[90%] rounded-sm px-5 py-6 justify-between mx-auto">
+                        <div className="flex border-2 border-[#22254b] w-[90%] rounded-sm px-5 py-6 justify-between mb-5 mx-auto">
                             <div key={movie.id}>
                                 <h3 className="text-xl">{movie.title}</h3>
                             </div>
                             <button
-                                onClick={() => removeFav(movie)}
-                                className="hover:font-bold text-sm bg-red-500 text-white px-2 py-1">
+                                onClick={() => {
+                                    console.log("Clicked");
+                                    removeFav(movie);
+                                }}
+                                className="hover:font-bold text-sm bg-red-500 text-black px-2 py-1">
                                 Remove
                             </button>
                         </div>
                     ))}
                 </div>
             ) : (
-                <p>No favourites added.</p>
+                <p className="px-5 italic">No favourites added.</p>
             )}
         </div>
     );
